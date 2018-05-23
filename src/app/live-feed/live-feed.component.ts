@@ -1,12 +1,14 @@
-import { Component, NgModule, ViewChild, ElementRef, OnInit, AfterViewChecked } from '@angular/core';
+import { Component, NgModule, ViewChild, ElementRef, OnInit, AfterViewChecked, OnDestroy } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@aspnet/signalr'
+
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-live-feed',
   templateUrl: './live-feed.component.html',
   styleUrls: ['./live-feed.component.css']
 })
-export class LiveFeedComponent implements OnInit, AfterViewChecked {
+export class LiveFeedComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   @ViewChild('feed') feed: ElementRef;
 
@@ -40,8 +42,9 @@ export class LiveFeedComponent implements OnInit, AfterViewChecked {
   constructor(){}
 
   ngOnInit(): void {
+    console.log("ON INIT");
     let hubBuilder = new HubConnectionBuilder();
-    hubBuilder.withUrl("https://localhost:44332/chat");
+    hubBuilder.withUrl(environment.baseUrl + "chat");
     hubBuilder.configureLogging(LogLevel.Information);
 
     this.sendyHub = hubBuilder.build();
@@ -79,6 +82,11 @@ export class LiveFeedComponent implements OnInit, AfterViewChecked {
       this.connecting = false;
     });
     
+  }
+
+  ngOnDestroy() {
+    console.log("FEED DESTROY");
+    this.sendyHub.stop().then(()=> {console.log("HUB STOPPED")});
   }
 
   

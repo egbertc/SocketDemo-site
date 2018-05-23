@@ -1,0 +1,63 @@
+<div class="title">
+  Maze Racer
+</div>
+
+
+<div class="name-wrapper" *ngIf="!connected">
+  <div class="message-row system-msg">
+    <div class="message">disconnected</div>
+  </div>
+</div>
+
+<div class="name-wrapper" *ngIf="connected && !playerId">
+  <div class="input-container">
+    <input type="text" placeholder="enter name" maxLength="24" [disabled]="!connected" [(ngModel)]="nameIn" (keyup.enter)="saveName()"
+    />
+  </div>
+</div>
+
+<div class="padding-wrapper" *ngIf="connected && playerId && !currentGame">
+  <div class="message-list-container">
+    <div class="btn create" (click)="createGame()">new game</div>
+    <div class="message-list" (scroll)="onScroll()">
+
+      <div class="message-row" *ngIf="!availableGames || availableGames.length === 0">
+        <div class="message">No Games Available</div>
+      </div>
+
+      <div class="message-row" *ngFor="let id of availableGames">
+        <div class="btn join" (click)="joinGame(id)">join</div>
+        <div class="message">Game {{id}}</div>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+<div class="padding-wrapper" *ngIf="connected && playerId && currentGame">
+  <div class="maze-container">
+    <div #maze class="maze" tabindex="0" (keydown)="move($event)" *ngIf="!currentGame.winner">
+      <div class="grid-row" *ngFor="let row of currentGame.mazeGrid;  let i = index">
+        <div *ngFor="let cell of row;  let j = index" [class]="getCellClass(cell)" [style.border]="specialBorder(j,i)">
+          <!-- <div class="player-circle" *ngIf="currentGame.players.length > 1 && (currentGame.players[0].x || currentGame.players[0].x === 0) && (currentGame.players[0].y || currentGame.players[0].y === 0) && (currentGame.players[0].y == j && currentGame.players[0].y == i)" [style.backgroundColor]="currentGame.players[0].color"></div> -->
+          <ng-container *ngFor="let player of currentGame.players">
+              <div class="player-circle" *ngIf=" (player.x || player.x === 0) && (player.y || player.y === 0) && (player.x == j && player.y == i)" [style.backgroundColor]="player.color"></div>
+          </ng-container>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="maze" *ngIf="currentGame.winner">
+      <h1>{{currentGame.winner}} wins!</h1>
+      <div class="btn create" (click)="quitGame()">exit</div>
+    </div>
+
+    <div class="player-container">
+      <div class="player-row" *ngFor="let player of currentGame.players" [style.background]="player.color">
+        {{player.name}}
+      </div>
+    </div>
+  </div>
+</div>
