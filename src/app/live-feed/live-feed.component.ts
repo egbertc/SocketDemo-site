@@ -2,11 +2,11 @@ import { Component, NgModule, ViewChild, ElementRef, OnInit, AfterViewChecked } 
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@aspnet/signalr'
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'app-live-feed',
+  templateUrl: './live-feed.component.html',
+  styleUrls: ['./live-feed.component.css']
 })
-export class AppComponent implements OnInit, AfterViewChecked {
+export class LiveFeedComponent implements OnInit, AfterViewChecked {
 
   @ViewChild('feed') feed: ElementRef;
 
