@@ -20,19 +20,52 @@
     background-color: black;
 } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner also needs to be styled */
 
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: rgba(255, 255, 255, 0.562);
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: rgba(255, 255, 255, 0.562);
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+    color: rgba(255, 255, 255, 0.562);
+}
+
 :host {
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    background: rgb(37,29,80);
 }
 
 .title {
-    background: #222222;
+    background: #131620;
     font-size: 2em;
-    color: white;
+    /* color: white; */
+    color: rgb(240,81,214);
     text-align: center;
     padding: 8px;
+}
+
+.title-wrapper {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-size: 2em;
+    color: rgb(240,81,214);
+    margin-bottom: 120px;
+}
+
+.maze-icon {
+    align-self: center;
+    background-image: url(/assets/MazeRage.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 60px;
+    height: 60px;
 }
 
 .name-wrapper {
@@ -58,23 +91,28 @@
     flex-direction: column;
     align-items: stretch;
     /* margin-top: 8px; */
-    background: #d1d1d1;
-    border-radius: 4px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    /* background: #022546; */
     padding: 8px 24px;
+    width: 600px;
+    align-self: center;
     /* margin: 8px 64px 0 64px; */
 }
 
 .message-list {
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    margin-top: 60px;
 }
 
 .message-row {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-top: 4px;
-    max-width: 85%;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(0,0,0,.3);
 }
 
 .message-row.system-msg {
@@ -106,7 +144,7 @@
 }
 
 .system-msg .message {
-    color: black;
+    color: rgb(177, 177, 177);
     margin: 0;
 }
 
@@ -120,15 +158,24 @@
     /* margin: 0px 64px 16px 64px; */
 }
 
+.game-in {
+    margin: 16px 8px;
+}
+
 .input-container input {
     flex-grow: 1;
     padding: 8px 16px;
     font-size: 3em;
     border: none;
-    background: #efefef;
-    border-radius: 8px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+    /* background: #efefef; */
+    background: rgb(240,81,214);
+    color: white;
+    /* color: rgb(29, 15, 48); */
+    border-radius: 4px;
+}
+
+.game-in input {
+    font-size: 1.5em;
 }
 
 .name-wrapper input {
@@ -186,7 +233,7 @@
     /* flex-direction: column; */
     /* align-items: stretch; */
     /* margin-top: 8px; */
-    background: white;
+    /* background: white; */
     border-radius: 4px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -208,9 +255,29 @@
 .join {
     background: #00963e;
 }
+.join:hover {
+    background: #016d2e;
+}
+
+
+.exit {
+    align-self: center;
+    display: inline-block;
+    background: #053275;
+}
+.exit:hover {
+    background: #042455;
+}
 
 .create {
     background: #299ac7;
+    align-self: center;
+    font-size: 2em;
+    margin-top: 16px;
+}
+
+.create:hover {
+    background: #1c6b8a
 }
 
 .maze {
@@ -218,6 +285,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.maze.pre-game {
+    border: 2px solid rgb(240,81,214);
 }
 
 .maze:focus {
@@ -228,13 +299,18 @@
     display: flex;
 }
 
+.pre-game .maze-cell {
+    border: none;
+    /* background: black; */
+}
+
 .maze-cell {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 40px;
     height: 40px;
-    border: 1px solid white;
+    border: 2px solid rgb(37,29,80);
 }
 
 .player-circle {
@@ -244,19 +320,19 @@
 }
 
 .north {
-    border-top: 1px solid black;
+    border-top: solid rgb(240,81,214);
 }
 
 .south {
-    border-bottom: 1px solid black;
+    border-bottom: solid rgb(240,81,214);
 }
 
 .east {
-    border-right: 1px solid black;
+    border-right: solid rgb(240,81,214);
 }
 
 .west {
-    border-left: 1px solid black;
+    border-left: solid rgb(240,81,214);
 }
 
 .start {
@@ -269,14 +345,77 @@
     border-bottom: white;
 }
 
-.player-container {
+.maze-overlay-container {
+    position: absolute;
+    display: flex;
+    width: 0;
+    height: 0;
+    justify-content: center;
+    align-items: center;
+}
+/* 
+.pre-game .maze-overlay-container {
+    position: absolute;
+    display: flex;
+} */
+
+.maze-overlay-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgb(240,81,214);
+    color: white;
+    font-size: 3em;
+}
+
+.player-wrapper {
     margin-left: 32px;
+    width: 0px;
+    overflow-x: visible;
+}
+
+.player-container {
+    min-width: 120px;
 }
 
 .player-row {
+    display: flex;
+    align-items: center;
     margin-top: 8px;
-    font-size: 2em;
+    font-size: 1em;
     padding: 4px 8px;
     border-radius: 4px;
+    color: white;
+    min-width: 300px;
+}
+
+.player-name {
+    font-size: 1.5em;
+    padding: 4px 8px;
+    border-radius: 4px;    
+    min-width: 60px;
+    margin-right: 16px;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-row .btn {
+    padding: 4px;
+}
+
+.player-row .ready-label {
+    color: rgb(170, 170, 170);
+}
+
+.winner-label {
+    font-size: 4em;
+    padding: 16px 8px;
+    border-radius: 8px;
+    background: rgb(240,81,214);
     color: white;
 }

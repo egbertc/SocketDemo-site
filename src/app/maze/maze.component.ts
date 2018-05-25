@@ -27,17 +27,23 @@ export class MazeComponent implements OnInit {
   nameIn: string;
   playerId: number;
 
-  // player: Player;
+  overlayMsg: string = "waiting...";
 
   playerName: string;
   color: string = "#299ac7";
 
-  availableGames: Array<number>;
+  availableGames: Array<{id: number, name: string}>;
 
   currentGame: Game;
+  gameStarted = false;
 
   connected: boolean = false;
   connecting: boolean = false;
+
+  creatingGame: boolean = false;
+  gameNameIn: string;
+
+  isReady: boolean = false;
 
   constructor(){}
 
@@ -61,6 +67,14 @@ export class MazeComponent implements OnInit {
       this.gameUpdate(game);
     });
 
+    this.sendyHub.on("PlayerReady", (playerId, isReady) => {
+      this.playerReady(playerId, isReady);
+    });
+
+    this.sendyHub.on("CountDown", (seconds) => {
+      this.setCountDown(seconds);
+    });
+
     this.sendyHub.on("StartGame", (gameId) => {
       this.startGame(gameId);
     });
@@ -71,10 +85,6 @@ export class MazeComponent implements OnInit {
 
     this.sendyHub.on("GameWinner", (gameId, player) => {
       this.gameWinner(gameId, player);
-    });
-
-    this.sendyHub.on("ClearAll", () => {
-      this.clearAll();
     });
 
     this.connecting = true;
@@ -114,7 +124,15 @@ export class MazeComponent implements OnInit {
     console.log("CURRENT GAME", this.currentGame);
   }
 
+  setCountDown(seconds){
+    this.overlayMsg = '' + seconds;
+  }
+
   startGame(gameId){
+    this.gameStarted = true;
+    this.overlayMsg = "GO!";
+    let scope = this;
+    setTimeout(()=> {scope.overlayMsg = undefined}, 1000);
     if(this.currentGame.id === gameId){
       this.currentGame.active = true;
     }
@@ -133,10 +151,23 @@ export class MazeComponent implements OnInit {
     player.y = y;
   }
 
-  clearAll(){
-    this.playerName = undefined;
-    this.color = this.colorList.default;
-    this.nameIn = undefined;
+  playerReady(playerId, isReady){
+    let readyPlayer = this.currentGame.players.find(p => p.id == playerId);
+    readyPlayer.isReady = isReady;
+    if(readyPlayer.id == this.playerId)
+      this.isReady = isReady;
+  }
+
+  clearGame(){
+    this.currentGame = undefined;
+    this.isReady = false;
+    this.gameStarted = false;
+    this.gameNameIn = undefined;
+  }
+
+
+  toggleReady(){
+    this.sendyHub.invoke("PlayerReady", this.currentGame.id, this.playerId, !this.isReady);
   }
 
    move(keyEvent){
@@ -194,15 +225,26 @@ export class MazeComponent implements OnInit {
   }
 
   joinGame(id: number){
+    this.isReady = false;
     this.sendyHub.invoke("JoinGame", this.playerId, id).then((response) => {console.log("RESPONSE", response);}).catch(err => console.log("ERROR", err));
   }
 
+  toggleNewGame(){
+    this.creatingGame = !this.creatingGame;
+  }
+
   createGame(){
-    this.sendyHub.invoke("NewGame", this.playerId).then((response) => {console.log("RESPONSE", response);}).catch(err => console.log("ERROR", err));
+    if(!this.gameNameIn || this.gameNameIn.trim() === '') return;
+    this.isReady = false;
+
+    this.sendyHub.invoke("NewGame", this.playerId, this.gameNameIn).then((response) => {console.log("RESPONSE", response);}).catch(err => console.log("ERROR", err));
   }
 
   quitGame(){
+    this.sendyHub.invoke("LeaveGame", this.currentGame.id, this.playerId);
     this.currentGame = undefined;
+    this.isReady = false;
+    this.clearGame();
   }
 
   getCellClass(direction: Direction): string {
@@ -265,9 +307,11 @@ class Player {
   color: string;
   x?: number;
   y?: number;
+  isReady: boolean;
 }
 
 class Game {
+  name: string;
   active: boolean;
   winner: string;
   id: number;
