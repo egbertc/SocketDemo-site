@@ -44,7 +44,7 @@
 
 <div class="padding-wrapper" *ngIf="connected && playerId && currentGame">
   <div class="maze-container">
-    <div #maze class="maze" [class.pre-game]="!gameStarted" tabindex="0" (keydown)="move($event)" *ngIf="!currentGame.winner">
+    <div #maze class="maze" [class.pre-game]="!gameStarted" tabindex="0" *ngIf="!currentGame.winner" (keydown)="move($event)">
       <div class="grid-row" *ngFor="let row of currentGame.mazeGrid;  let i = index">
         <div *ngFor="let cell of row;  let j = index" [class]="getCellClass(cell)" [style.border]="specialBorder(j,i)">
           <!-- <div class="player-circle" *ngIf="currentGame.players.length > 1 && (currentGame.players[0].x || currentGame.players[0].x === 0) && (currentGame.players[0].y || currentGame.players[0].y === 0) && (currentGame.players[0].y == j && currentGame.players[0].y == i)" [style.backgroundColor]="currentGame.players[0].color"></div> -->
@@ -70,7 +70,7 @@
       <div class="player-container">
         <div class="player-row" *ngFor="let player of currentGame.players">
           <div class="player-name" [style.background]="player.color">{{player.name}} </div>
-          <div *ngIf="!gameStarted && player.id != playerId && player.isReady" class="ready-label">ready</div>
+          <div *ngIf="!gameStarted && player.id != playerId && isPlayerReady(player.id)" class="ready-label">ready</div>
           <div *ngIf="!gameStarted && player.id == playerId" class="btn join" (click)="toggleReady()">{{isReady ? 'unready' : 'ready up'}}</div>
         </div>
       </div>

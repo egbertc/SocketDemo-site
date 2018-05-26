@@ -23,6 +23,7 @@ export class MazeComponent implements OnInit {
   private sendyHub: HubConnection;
   title: string = 'The Maze';
   
+  @ViewChild('maze') maze: ElementRef;
 
   nameIn: string;
   playerId: number;
@@ -135,6 +136,7 @@ export class MazeComponent implements OnInit {
     setTimeout(()=> {scope.overlayMsg = undefined}, 1000);
     if(this.currentGame.id === gameId){
       this.currentGame.active = true;
+      this.maze.nativeElement.focus();
     }
   }
 
@@ -152,9 +154,22 @@ export class MazeComponent implements OnInit {
   }
 
   playerReady(playerId, isReady){
-    let readyPlayer = this.currentGame.players.find(p => p.id == playerId);
-    readyPlayer.isReady = isReady;
-    if(readyPlayer.id == this.playerId)
+
+    if(isReady){
+      let pIndex = this.currentGame.readyPlayers.findIndex(p => p == playerId);
+      if(pIndex == -1){
+        this.currentGame.readyPlayers.push(playerId);
+      }
+    } else{
+      let pIndex = this.currentGame.readyPlayers.findIndex(p => p == playerId);
+      if(pIndex != -1){
+        this.currentGame.readyPlayers = this.currentGame.readyPlayers.splice(pIndex, 1);
+      }
+    }
+
+    /* let readyPlayer = this.currentGame.players.find(p => p.id == playerId);
+    readyPlayer.isReady = isReady; */
+    if(playerId == this.playerId)
       this.isReady = isReady;
   }
 
@@ -184,18 +199,22 @@ export class MazeComponent implements OnInit {
 
     switch(keyEvent.keyCode){
       case 38:
+      case 87:
         dir = Direction.Up;
         newY--;
         break;
       case 39:
+      case 68:
         dir = Direction.Right;
         newX++;
         break;
       case 40:
+      case 83:
         dir = Direction.Down;
         newY++;
         break;
       case 37:
+      case 65:
         dir = Direction.Left;
         newX--;
         break;
@@ -245,6 +264,10 @@ export class MazeComponent implements OnInit {
     this.currentGame = undefined;
     this.isReady = false;
     this.clearGame();
+  }
+
+  isPlayerReady(pId: number){
+    return (this.currentGame.readyPlayers.findIndex(p => p === pId) != -1)
   }
 
   getCellClass(direction: Direction): string {
@@ -313,10 +336,13 @@ class Player {
 class Game {
   name: string;
   active: boolean;
+  playerNumber: number;
+  readyPlayers: Array<number>;
   winner: string;
   id: number;
   mazeGrid: Array<Array<Direction>>;
   players: Array<Player>;
+
   startX: number;
   startY: number;
   endX: number;
